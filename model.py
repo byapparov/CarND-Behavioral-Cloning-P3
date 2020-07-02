@@ -113,7 +113,7 @@ model.add(Lambda(lambda x: x / 255 - 0.5))
 
 model.add(Conv2D(filters=24, kernel_size=5, strides=(2, 2), activation="relu"))
 model.add(Conv2D(filters=36, kernel_size=5, strides=(2, 2), activation="relu"))
-model.add(Conv2D(filters=48, kernel_size=(3, 5), strides=(1, 2), activation="relu"))
+model.add(Conv2D(filters=48, kernel_size=5, strides=(1, 1), activation="relu"))
 
 
 model.add(Conv2D(filters=64, kernel_size=3, activation="relu"))
