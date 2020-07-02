@@ -16,10 +16,8 @@ The goals / steps of this project are the following:
 [image_model]: ./writeup_images/model_architecture.png "Model Visualization"
 [image_crop]: ./writeup_images/cropped_image.jpg "Cropping (75, 25)"
 [image_flip]: ./writeup_images/flipped_image.jpg "Recovery Image"
-[image_original]: ./writeup_images/car_sharp_angle.jpg "Recovery Image"
-[image5]: ./examples/placeholder_small.png "Recovery Image"
-[image6]: ./examples/placeholder_small.png "Normal Image"
-[image7]: ./examples/placeholder_small.png "Flipped Image"
+[image_original]: ./writeup_images/car_sharp_angle.jpg   "Recovery Image"
+[image_sharp_angle]: ./writeup_images/car_sharp_angle.png "Recovery Image"
 
 ## Rubric Points
 
@@ -102,7 +100,17 @@ The final step was to run the simulator to see how well the car was driving arou
 
 At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
 
+
 #### 2. Final Model Architecture
+
+First layer of the sequential model crops the top and bottom of the image.
+
+Original Image|Cropped Image
+------------|--------------
+![Original Image][image_original]|![Cropped image][image_crop]
+
+This removes area above the road that is not relevant for driving and
+area that contains the boot of the car.
 
 Selected model architecture consists of three convolution (5x5) layers,
 followed by two convolution (3x3) layers and and four dense layers. 
@@ -140,21 +148,28 @@ I have done following recordings of the simulation to collect the data:
 - driving on the first track getting car on the road multiple times
 in different locations on the track. 
 
+Here a screenshot of an example where car is in a position where it is
+entering or crossing the road:
+
+ ![Sharp Angle][image_sharp_angle]
+ 
+This position is very rear while driving but important for the car
+to learn to steer sharp turns. 
 
 To augment the data and increase the number of data points, I have flipped the images 
-within the generator:
+within the generator function:
 
 Original Image|Horisontal Flip
 ------------|----------
 ![alt text][image_original]|![alt text][image_flip]
 
+Each observation for a flipped image label got assigned negative value of the original measurement.
 
 In total I have collected 14622 data points (43866 images from 3 cameras).
 
-After re-sampling to reduce number of observations where control was zero, ~9876 lines were used.
+After re-sampling to reduce number of observations where control was zero, 6992 lines were used.
 
 Data was randomly shuffled with 80/20 split into training and validation sets. 
-
 
 I have used Adam optimiser and manually selected 8 epochs for training as loss was growing afterwards on the validation set.
 
@@ -162,25 +177,7 @@ I have used Adam optimiser and manually selected 8 epochs for training as loss w
 
 ### Number of Epochs
 
-Loss values progression for the model with batch Size 50:
-
-Epoch | Loss | Val Loss
-:---:|:------:|:-------:
-1| 0.0387 | 0.0308
-2|0.0295 |0.0271
-3|0.0263|0.0238
-4|0.0239 | 0.0221
-5|0.0223 | 0.0218
-6|0.0197 | 0.0196
-7|0.0185 | 0.0177
-8|0.0177 | 0.0176
-9|0.0158 | 0.0156
-10|0.0150 | 0.0147 *
-11|0.0135 | 0.0153
-12|0.0131 | 0.0136
-13|0.0119 | 0.0137
-14|0.0113 | 0.0129
-15|0.0109 | 0.0130
+Depending on parameters 
 
 ## Camera correction selection 
 
@@ -209,8 +206,25 @@ for images from the left and right cameras.
 Parameter | Value
 -------:|:---------:
 Keep Zero Angle Observations | 20%
-Wheel angle adjustment| 0.25
+Wheel angle adjustment| 0.3
 Batch size | 10 
 Epochs | 8
 Observations | 9876
 Validation Loss | 0.0186
+
+# Apendix
+
+## Final model fit summary
+
+Number of observations: 6992 * 2 (flip) * 3 (cameras)
+
+Epoch | Loss | Validation Loss
+:-------:|:-----------:|:---------:
+1 | 0.0475 | 0.0406
+2 | 0.0417 | 0.0391
+3 | 0.0383 | 0.0358
+4 | 0.0362 | 0.0332
+5 | 0.0338 | 0.0314
+6 | 0.0314 | 0.0290
+7 | 0.0297 | 0.0284
+8 | 0.0274 | 0.0283

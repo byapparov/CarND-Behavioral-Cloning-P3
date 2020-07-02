@@ -40,7 +40,7 @@ print("Number of lines {lines}".format(lines = len(lines)))
 def correct_driving_measrument(measurement, camera):
     # caluclates adjustment for the wheel angle measurment
     # based on the side on which camera is installed
-    side_camera_correction = 0.25
+    side_camera_correction = 0.3
     if camera == 0: # center camera
         res = measurement
     elif camera == 1: # left camera
