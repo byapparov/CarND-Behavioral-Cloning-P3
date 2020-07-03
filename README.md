@@ -15,9 +15,9 @@ The goals / steps of this project are the following:
 
 [image_model]: ./writeup_images/model_architecture.png "Model Visualization"
 [image_crop]: ./writeup_images/cropped_image.jpg "Cropping (75, 25)"
-[image_flip]: ./writeup_images/flipped_image.jpg "Recovery Image"
-[image_original]: ./writeup_images/car_sharp_angle.jpg   "Recovery Image"
-[image_sharp_angle]: ./writeup_images/car_sharp_angle.png "Recovery Image"
+[image_flip]: ./writeup_images/flipped_image.jpg "Flipped Image"
+[image_original]: ./writeup_images/car_sharp_angle.jpg   "Original Image"
+[image_sharp_angle]: ./writeup_images/car_sharp_angle.png "Sharp Angle Screenshot"
 
 ## Rubric Points
 
@@ -93,12 +93,15 @@ I have used [model](https://images.nvidia.com/content/tegra/automotive/images/20
 as the starting point for my implementation. 
 
 I have added two dropout layers between the dense layers of the model to reduce overfitting. 
-
 To reduce the number of parameters in the model, I used (2x2) strides in the first two convolution layers.
 
-The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle fell off the track... to improve the driving behavior in these cases, I ....
+As a model from NVIDIA's paper produced some results from the start, 
+I have focused on improving the data collection process with the following features:
 
-At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
+- Sampling of images in way that proportion of the observations with zero wheel angle is reduced (reduces bias for zero).
+- Using all three cameras with correction for side cameras that allows the cart to make sharper turns.
+- Cropping of the images was added to the model to leave the relevant part. 
+- Flipped images were added to the data set to increase the sample size and also remove the direction bias.
 
 
 #### 2. Final Model Architecture
@@ -112,8 +115,14 @@ Original Image|Cropped Image
 This removes area above the road that is not relevant for driving and
 area that contains the boot of the car.
 
-Selected model architecture consists of three convolution (5x5) layers,
-followed by two convolution (3x3) layers and and four dense layers. 
+Following layers of selected model architecture consist of:
+
+  - three convolution (5x5) layers,
+  - two convolution (3x3) layers 
+  - four dense layers. 
+
+To avoid overfitting, first two layers have strides (2,2) 
+and dense layers are linked through dropout layers.
 
 Total number of model parameters is **1,902,531**.
 
@@ -163,23 +172,16 @@ Original Image|Horisontal Flip
 ------------|----------
 ![alt text][image_original]|![alt text][image_flip]
 
-Each observation for a flipped image label got assigned negative value of the original measurement.
+Each observation for a flipped image label got assigned the negative of the original measurement.
 
-In total I have collected 14622 data points (43866 images from 3 cameras).
+In total I have collected 14622 data points (43866 images from 3 cameras). 
 
-After re-sampling to reduce number of observations where control was zero, 6992 lines were used.
+After re-sampling to reduce number of observations where wheel angle was zero, 6992 lines were used.
+Due to the random nature of re-sampling procedure this number will be different for each execution of `model.py`.
 
 Data was randomly shuffled with 80/20 split into training and validation sets. 
 
-I have used Adam optimiser and manually selected 8 epochs for training as loss was growing afterwards on the validation set.
-
-## Model parameters selection
-
-### Number of Epochs
-
-Depending on parameters 
-
-## Camera correction selection 
+*Camera correction selection*
 
 Having images from three cameras allowed me to select driving angle correction in a way that would 
 enforce correct position of the car in the road. 
@@ -198,10 +200,17 @@ Correction|Loss|Val Loss|Car makes the full circle|Training post 1st Epoch|Comme
 0.25| 0.0163|  0.0186|No|Yes|Driving of towards the end of the track. 
 0.3| 0.0217 | 0.0234|No|Yes|Drives off at the end of the first turn
 
-Based on the analysis above, I have chosen the model with 0.25 angle adjustment
-for images from the left and right cameras. 
+Based on the analysis above, I have trained the model values over 0.2 angle adjustment
+for images from the left and right cameras and 0.3 was used in the final version of the model. 
+
+Higher correction value allows the car to apply sharper angles in the turns, which means it is likely to 
+drive on the side of the road. 
+
+
+# Appendix
 
 # Model Tuning Summary
+
 
 Parameter | Value
 -------:|:---------:
@@ -212,9 +221,9 @@ Epochs | 8
 Observations | 9876
 Validation Loss | 0.0186
 
-# Apendix
+## Final model fit history
 
-## Final model fit summary
+I have used Adam optimiser and manually selected 8 epochs for training as loss was growing afterwards on the validation set.
 
 Number of observations: 6992 * 2 (flip) * 3 (cameras)
 
