@@ -175,6 +175,7 @@ Original Image|Horisontal Flip
 Each observation for a flipped image label got assigned the negative of the original measurement.
 
 In total I have collected 14622 data points (43866 images from 3 cameras). 
+See `train_data/IMG` folder for some examples of the training data)
 
 After re-sampling to reduce number of observations where wheel angle was zero, 6992 lines were used.
 Due to the random nature of re-sampling procedure this number will be different for each execution of `model.py`.
